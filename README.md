@@ -5,6 +5,8 @@
 
 * GUI模式
 
+![示例](https://github.com/wmltyq/douyin_download/blob/master/img/sample.png)
+
 将分享链接文本粘贴到“粘贴分享链接↓”下面的文本框中，多个分享链接之间需换行，然后点击下载即可下载分享链接中的视频和封面。
 
 ## 项目局限
