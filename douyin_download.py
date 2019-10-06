@@ -34,20 +34,10 @@ def get_addr(url):
         play_addr = re.search('playAddr: "(.+?)"', html).group(1)
         print('播放地址：{}'.format(play_addr))
         # 视频封面
-        cover = re.search('cover: "(.+?)"', html).group(1)
-        print('封面地址：{}'.format(cover))
+        cover_addr = re.search('cover: "(.+?)"', html).group(1)
+        print('封面地址：{}'.format(cover_addr))
 
-        return play_addr, cover
-
-        # print(filename)
-        video = requests.get(play_addr, headers=headers)
-        with open(os.path.join(file_path, filename + '.mp4'), 'wb') as f:
-            f.write(video.content)
-
-        # urllib.request.urlretrieve(play_addr, os.path.join(file_path, filename + '.mp4'))
-        print('视频下载完成')
-        urllib.request.urlretrieve(cover, os.path.join(file_path, filename + '.jpg'))
-        print('封面下载完成\n')
+        return play_addr, cover_addr
 
 
 def download(addr, filename):
@@ -57,17 +47,20 @@ def download(addr, filename):
     :param filename: 带后缀的文件名
     :return:
     """
-    resp = requests.get(addr, headers=headers)
-    with open(os.path.join(file_path, filename), 'wb') as f:
-        f.write(resp.content)
+    if filename in downloaded_file:
+        print('{} 已下载'.format(filename))
+    else:
+        resp = requests.get(addr, headers=headers)
+        with open(os.path.join(file_path, filename), 'wb') as f:
+            f.write(resp.content)
 
-    print('{} 下载完成'.format(filename))
+        print('{} 下载完成'.format(filename))
 
 
 def main(url):
     addrs = get_addr(url)
     if addrs:
-        play_addr, cover = addrs
+        play_addr, cover_addr = addrs
     else:
         print('短地址错误')
 
@@ -78,15 +71,8 @@ def main(url):
     else:
         filename = url_split[-1]
 
-    if filename + '.mp4' in downloaded_file:
-        print('{} 已下载'.format(filename + '.mp4'))
-    else:
-        download(play_addr, filename + '.mp4')
-
-    if filename + '.jpg' in downloaded_file:
-        print('{} 已下载'.format(filename + '.jpg'))
-    else:
-        download(cover, filename + '.jpg')
+    download(play_addr, filename + '.mp4')
+    download(cover_addr, filename + '.jpg')
 
 
 if __name__ == '__main__':
