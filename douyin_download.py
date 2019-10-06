@@ -2,10 +2,19 @@ import requests
 import re
 import os
 import urllib
+import multiprocessing
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3704.400 QQBrowser/10.4.3587.400'
 }
+
+# 下载存放路径
+file_path = 'video'
+if not os.path.exists(file_path):
+    os.makedirs(file_path)
+
+# 列出已经下载的所有文件
+downloaded_file = os.listdir(file_path)
 
 
 def get_addr(url):
@@ -55,40 +64,32 @@ def download(addr, filename):
     print('{} 下载完成'.format(filename))
 
 
-def main():
-    for url in urls:
-        addrs = get_addr(url)
-        if addrs:
-            play_addr, cover = addrs
-        else:
-            print('短地址错误')
+def main(url):
+    addrs = get_addr(url)
+    if addrs:
+        play_addr, cover = addrs
+    else:
+        print('短地址错误')
 
-        # 将短地址后缀作为下载的文件名
-        url_split = url.split('/')
-        if url_split[-1] == '':
-            filename = url_split[-2]
-        else:
-            filename = url_split[-1]
+    # 将短地址后缀作为下载的文件名
+    url_split = url.split('/')
+    if url_split[-1] == '':
+        filename = url_split[-2]
+    else:
+        filename = url_split[-1]
 
-        if filename + '.mp4' in downloaded_file:
-            print('{} 已下载'.format(filename + '.mp4'))
-        else:
-            download(play_addr, filename + '.mp4')
+    if filename + '.mp4' in downloaded_file:
+        print('{} 已下载'.format(filename + '.mp4'))
+    else:
+        download(play_addr, filename + '.mp4')
 
-        if filename + '.jpg' in downloaded_file:
-            print('{} 已下载'.format(filename + '.jpg'))
-        else:
-            download(cover, filename + '.jpg')
+    if filename + '.jpg' in downloaded_file:
+        print('{} 已下载'.format(filename + '.jpg'))
+    else:
+        download(cover, filename + '.jpg')
 
 
 if __name__ == '__main__':
-    file_path = 'video'
-    if not os.path.exists(file_path):
-        os.makedirs(file_path)
-
-    # 列出已经下载的所有文件
-    downloaded_file = os.listdir(file_path)
-
     # 添加需要爬取的短地址
     urls = (
         'http://v.douyin.com/HRFV7r/',
@@ -98,4 +99,7 @@ if __name__ == '__main__':
         'http://v.douyin.com/H8LvD6/',
     )
 
-    main()
+    pool = multiprocessing.Pool(2)
+    pool.map(func=main, iterable=urls)
+    pool.close()
+    pool.join()
