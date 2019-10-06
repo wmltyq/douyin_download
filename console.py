@@ -1,8 +1,8 @@
 import requests
 import re
 import os
-import urllib
 import multiprocessing
+from tkinter import END
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3704.400 QQBrowser/10.4.3587.400'
@@ -49,15 +49,17 @@ def download(addr, filename):
     """
     if filename in downloaded_file:
         print('{} 已下载'.format(filename))
+        return '{} 已下载'.format(filename)
     else:
         resp = requests.get(addr, headers=headers)
         with open(os.path.join(file_path, filename), 'wb') as f:
             f.write(resp.content)
 
         print('{} 下载完成'.format(filename))
+        return '{} 下载完成'.format(filename)
 
 
-def main(url):
+def main(url, download_text=None):
     addrs = get_addr(url)
     if addrs:
         play_addr, cover_addr = addrs
@@ -71,8 +73,12 @@ def main(url):
     else:
         filename = url_split[-1]
 
-    download(play_addr, filename + '.mp4')
-    download(cover_addr, filename + '.jpg')
+    if download_text:
+        download_text.insert(END, download(play_addr, filename + '.mp4') + '\n')
+        download_text.insert(END, download(cover_addr, filename + '.jpg') + '\n')
+    else:
+        download(play_addr, filename + '.mp4')
+        download(cover_addr, filename + '.jpg')
 
 
 if __name__ == '__main__':
